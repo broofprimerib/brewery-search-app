@@ -1,3 +1,9 @@
 from django.urls import path
+from django.contrib import admin
 
-urlpatterns = []
+from . import views
+
+urlpatterns = [
+  path('admin/', admin.site.urls),
+  path('api/capitals/', views.capitals)
+]
