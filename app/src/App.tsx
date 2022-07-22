@@ -1,22 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 function App() {
+  const [capitals, setCapitals] = useState<{}[]>([]);
+
+  useEffect(() => {
+    const fetchCapitals = async () => {
+      await fetch(`${process.env.REACT_APP_API_BASE_URL}api/capitals/`)
+        .then(r => r.json())
+        .then(data => setCapitals(Object.entries(data)));
+    };
+
+    fetchCapitals();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={''} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <select id="capitals" name="capitals">
+        <option selected disabled>Select a city</option>
+        {capitals && capitals.map((capital) => 
+            <option id={capital[0]} value={capital[0]}>
+              {`${capital[1].capital} (${capital[1].name})`}
+            </option>
+        )}
+      </select>
     </div>
   );
 }
