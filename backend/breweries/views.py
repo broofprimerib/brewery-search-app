@@ -13,3 +13,8 @@ class JSONResponse(HttpResponse):
 @api_view(['GET'])
 def capitals(request):
   return JSONResponse(constants.BREWERIES_STATE_MAP)
+
+@api_view(['GET'])
+def countries(request):
+  return JSONResponse(constants.BREWERIES_COUNTRY_MAP)
+
