@@ -16,7 +16,17 @@ export const fetchBreweries = async (options: IFetchBreweriesOptions) => {
     ? `/search?query=${options.query}`
     : `?by_dist=${options.lat},${options.long}`
   const url = `${process.env.REACT_APP_BREWERIES_API_URL}${search}&per_page=${options.pageSize}&page=${options.page}${byType}`;
-  console.log(url);
+
   const response = await fetch(url);
+  return await response.json();
+};
+
+export const fetchCapitals = async () => {
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/capitals/`);
+  return await response.json();
+};
+
+export const fetchCountries = async () => {
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/countries/`);
   return await response.json();
 };
