@@ -1,6 +1,7 @@
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
 from rest_framework.decorators import api_view
+import json
 
 from .models import Search, Favorite
 from .serializers import SearchSerializer, FavoriteSerializer
@@ -17,14 +18,14 @@ def countries(request):
 @api_view(['GET', 'POST'])
 def favorite(request):
   if request.method == 'POST':
-    print(request.data)
     try:
       existing = Favorite.objects.filter(brewery_id=request.data['id'])
       if existing:
         existing.delete()
       else:
-        Favorite.objects.create(brewery_id=request.data['id'], data=request.data['data'])
-    except:
+        Favorite.objects.create(brewery_id=request.data['id'], data=str(request.data['data']))
+    except Exception as e:
+      print(e)
       return HttpResponseBadRequest('Invalid data.')
 
   data = Favorite.objects.all()
