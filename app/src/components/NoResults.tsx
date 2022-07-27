@@ -21,7 +21,7 @@ const NoResults = (props) => {
           <Typography variant='body1' component='p'>
             We couldn't find any Breweries { queryKeyword ? <>with keywords "<strong>{queryKeyword}</strong>"</> : '' }
           </Typography>
-          <Typography variant='body2' component='p'>
+          <Typography variant='body2' component='div'>
             May we suggest searching for:
             <ul>
               <li>Barbarian</li>
