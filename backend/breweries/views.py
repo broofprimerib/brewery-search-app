@@ -17,6 +17,7 @@ def countries(request):
 @api_view(['GET', 'POST'])
 def favorite(request):
   if request.method == 'POST':
+    print(request.data)
     try:
       existing = Favorite.objects.filter(brewery_id=request.data['id'])
       if existing:
