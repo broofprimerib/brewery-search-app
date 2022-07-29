@@ -36,7 +36,14 @@ def favorite(request):
 def search(request):
   if request.method == 'POST':
     try:
-      Search.objects.create(lat=request.data['lat'], long=request.data['long'])
+      Search.objects.create(
+        lat=request.data['lat'],
+        long=request.data['long'],
+        city=request.data['city'],
+        country=request.data['country'],
+        query=request.data['query'],
+        is_current_location=request.data['is_current_location']
+      )
     except:
       return HttpResponseBadRequest('Invalid data.')
 
