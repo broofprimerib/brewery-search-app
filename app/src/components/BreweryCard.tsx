@@ -1,6 +1,6 @@
 import { LocalPhone, OpenInNew, Map, LocationOn, StarOutline, Star, SportsBar } from "@mui/icons-material";
-import { Alert, Button, Chip, IconButton, Paper, Snackbar, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Button, Chip, IconButton, Paper, Stack, Typography } from "@mui/material";
+import React from "react";
 
 import { getDistance } from '../distance';
 

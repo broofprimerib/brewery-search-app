@@ -1,7 +1,7 @@
 import { Alert, Button, Paper, Snackbar, Stack, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { fetchBreweries, fetchCapitals, fetchCountries, addSearch } from '../api';
+import { fetchBreweries, addSearch } from '../api';
 
 import { DefaultBreweryType, DistanceUnit, LocationOption, StaticLocations } from "../models/constants";
 

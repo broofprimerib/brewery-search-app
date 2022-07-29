@@ -36,6 +36,7 @@ const HistoryItem = (props) => {
               justifyContent="flex-start"
               alignItems="center"
               spacing={1}
+              component='span'
             >
               <GpsFixed fontSize="small" />
               <span>{history.lat}, {history.long}</span>

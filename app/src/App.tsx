@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Backdrop, Badge, Box, CircularProgress, IconButton, ListItem, ListItemText, Paper, Tab, Tabs } from '@mui/material';
-import { Search as SearchIcon, History, DataArray, Star, PlayCircle } from '@mui/icons-material';
+import { Backdrop, Badge, Box, CircularProgress, Paper, Tab, Tabs, Typography } from '@mui/material';
+import { Search as SearchIcon, History, DataArray, Star } from '@mui/icons-material';
 
 import { toggleFavorite, fetchFavorites, fetchHistories, fetchCapitals, fetchCountries } from './api';
 
@@ -144,7 +144,18 @@ function App() {
       />
       <Container>
         <Paper 
-          sx={{m: 4, p: 4, overflow: 'scroll'}} 
+          sx={{mt: 12, mx: 4, px: 4, overflow: 'scroll', textAlign: 'center'}} 
+          elevation={0}
+        >
+          <Typography variant='h3'>
+            Welcome!
+          </Typography>
+          <Typography variant='subtitle1'>
+            Thanks for stopping by the Brewery search. Enjoy!
+          </Typography>
+        </Paper>
+        <Paper 
+          sx={{mx: 4, px: 4, overflow: 'scroll'}} 
           elevation={0}
         >
           <Tabs
