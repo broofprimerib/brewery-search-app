@@ -80,7 +80,6 @@ typings/
 !public/*.png
 !public/*.ico
 !public/manifest.json
-public/
 
 # vuepress build output
 .vuepress/dist
