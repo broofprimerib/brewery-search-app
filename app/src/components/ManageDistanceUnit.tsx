@@ -1,4 +1,4 @@
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React from "react";
 
 import { DistanceUnit } from "../models/constants";
@@ -25,6 +25,7 @@ const ManageDistanceUnit = (props) => {
         <FormControlLabel value={DistanceUnit.miles} control={<Radio />} label='Miles'/>
         <FormControlLabel value={DistanceUnit.kilometers} control={<Radio />} label='Kilometers'/>
       </RadioGroup>
+      <Typography variant="overline">Distances are calculated using lat/long, not to be used for navigation</Typography>
     </FormControl>
   );
 };

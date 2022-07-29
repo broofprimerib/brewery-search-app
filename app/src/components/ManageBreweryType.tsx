@@ -1,6 +1,7 @@
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import React from "react";
 import { BreweryTypes } from "../models/BreweryType";
+import { DefaultBreweryType } from "../models/constants";
 
 const ManageBreweryType = (props) => {
 
@@ -21,11 +22,11 @@ const ManageBreweryType = (props) => {
     >
       <InputLabel>Filter by Brewery Type</InputLabel>
       <Select
-        defaultValue={'All types'}
+        defaultValue={DefaultBreweryType}
         value={queryType}
         onChange={handleTypeChange}
       >
-        <MenuItem key="0" value={'All types'}>All types</MenuItem>
+        <MenuItem key="0" value={DefaultBreweryType}>All types</MenuItem>
         {BreweryTypes.map((bt) => 
           <MenuItem key={bt.display} value={bt.value}>
             {bt.display}

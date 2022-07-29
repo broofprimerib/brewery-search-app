@@ -1,3 +1,4 @@
+import { Brewery } from "./models/Brewery";
 
 interface IFetchBreweriesOptions {
   query?: string;
@@ -9,6 +10,8 @@ interface IFetchBreweriesOptions {
 };
 
 export const fetchBreweries = async (options: IFetchBreweriesOptions) => {
+  console.log('fetch breweries')
+  //return;
   const byType = options.type
     ? `&by_type=${options.type}`
     : '';
@@ -28,5 +31,56 @@ export const fetchCapitals = async () => {
 
 export const fetchCountries = async () => {
   const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/countries/`);
+  return await response.json();
+};
+
+export const fetchFavorites = async () => {
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/favorite/`);
+  return await response.json();
+};
+
+export const fetchHistories = async () => {
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/search/`);
+  return await response.json();
+};
+
+export const addSearch = async ({
+  lat,
+  long,
+  query,
+  city,
+  country,
+  isCurrentLocation,
+}) => {
+  const body = {
+    lat,
+    long,
+    query,
+    city,
+    country,
+    is_current_location: isCurrentLocation,
+  };
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/search/`, { 
+    method: 'POST', 
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  });
+  return await response.json();
+};
+
+export const toggleFavorite = async (brewery: Brewery) => {
+  const body = {
+    id: brewery.id,
+    data: brewery
+  };
+  const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/favorite/`, { 
+    method: 'POST', 
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  });
   return await response.json();
 };

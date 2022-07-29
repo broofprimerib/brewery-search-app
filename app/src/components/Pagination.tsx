@@ -1,24 +1,31 @@
+import React from "react";
 import { FirstPage, KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { Box, Fab } from "@mui/material";
-import React from "react";
 
-export const Pagination = (props) => {
+const Pagination = (props) => {
+
+  const {
+    breweries,
+    page,
+    setPage,
+  } = props;
+
 
   const handlePagePrevious = (event) => {
-    props.setPage(() => props.page - 1);
+    setPage(() => page - 1);
   };
 
   const handlePageNext = (event) => {
-    props.setPage(() => props.page + 1);
+    setPage(() => page + 1);
   };
 
   const handlePageOne = (event) => {
-    props.setPage(1);
+    setPage(1);
   };
 
   return(
     <>
-      {props.breweries && props.breweries.length > 0 &&
+      {breweries && breweries.length > 0 &&
         <Box
           sx={{
             zIndex: 9999,
@@ -34,24 +41,23 @@ export const Pagination = (props) => {
           <Fab
             size='small'
             onClick={handlePageOne}
-            disabled={props.page === 1}
+            disabled={page === 1}
           >
             <FirstPage />
           </Fab>
           <Fab
             size='small'
             onClick={handlePagePrevious}
-            disabled={props.page === 1}
+            disabled={page === 1}
           >
             <KeyboardArrowLeft />
           </Fab>
           <Fab
-            size='small'
-            //variant='extended'
+            variant='extended'
             disabled
             sx={{ mx: 2, px: 2 }}
           >
-            {props.page}
+            Page {page}
           </Fab>
           <Fab
             size='small'
@@ -64,3 +70,5 @@ export const Pagination = (props) => {
     </>
   );
 }
+
+export default Pagination;

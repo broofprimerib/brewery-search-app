@@ -3,7 +3,7 @@ import { Fab } from "@mui/material";
 import React from "react";
 import { useEffect, useState } from "react";
 
-export const ScrollToTop = () => {
+const ScrollToTop = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   
   useEffect(() => {
@@ -32,3 +32,5 @@ export const ScrollToTop = () => {
     </>
   );
 }
+
+export default ScrollToTop;

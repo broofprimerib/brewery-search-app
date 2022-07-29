@@ -1,15 +1,17 @@
-import { LocalPhone, OpenInNew, Map, LocationOn } from "@mui/icons-material";
-import { Button, Chip, Paper, Stack, Typography } from "@mui/material";
-import React from "react";
+import { LocalPhone, OpenInNew, Map, LocationOn, StarOutline, Star, SportsBar } from "@mui/icons-material";
+import { Alert, Button, Chip, IconButton, Paper, Snackbar, Stack, Typography } from "@mui/material";
+import React, { useState } from "react";
 
 import { getDistance } from '../distance';
 
-export const BreweryCard = (props) => {
+const BreweryCard = (props) => {
 
   const {
     queryCoords,
     distanceFormat,
     brewery,
+    favorites,
+    toggleFavorite,
   } = props;
 
   const getFormattedDistance = () => {
@@ -17,7 +19,9 @@ export const BreweryCard = (props) => {
       return '';
     }
 
-    const distance = getDistance(queryCoords!.lat, queryCoords!.long, brewery.latitude, brewery.longitude, distanceFormat === 'mi').toPrecision(1);
+    const distanceRaw = getDistance(queryCoords!.lat, queryCoords!.long, brewery.latitude, brewery.longitude, distanceFormat === 'mi');
+    const distanceParts = distanceRaw.toString().split('.');
+    const distance = `${distanceParts[0]}.${distanceParts.length > 1 ? distanceParts[1][0] : '0'}`;
     return `${distance} ${distanceFormat}.`;
   };
 
@@ -44,8 +48,12 @@ export const BreweryCard = (props) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const handleToggleFavorite = (event) => {
+    toggleFavorite(brewery);
+  };
+
   return(
-    <Paper sx={{p: 4, mb: 3, mx: 1}} elevation={1}>
+    <Paper sx={{p: 4, mb: 3}} elevation={1}>
       <Stack
         direction='row'
         justifyContent="space-between"
@@ -61,9 +69,12 @@ export const BreweryCard = (props) => {
           <Typography variant='button' component='div'>
             {brewery.phone && <span><strong>Tel:</strong> {brewery.phone}</span>}
           </Typography>
+          <Typography variant='button' component='span'>
+            <Chip color='secondary' icon={<SportsBar />} label={brewery.brewery_type} variant='outlined' />
+          </Typography>
           {queryCoords &&
-            <Typography variant='button' component='div'>
-              <Chip icon={<LocationOn />} label={getFormattedDistance()} variant="outlined" />
+            <Typography variant='button' component='span'>
+              <Chip color='success' icon={<LocationOn />} label={getFormattedDistance()} variant='outlined' />
             </Typography>
           }
         </Stack>
@@ -72,6 +83,14 @@ export const BreweryCard = (props) => {
           alignItems="flex-end"
           spacing={2}
         >
+          <IconButton
+            onClick={handleToggleFavorite}
+          >
+            {(favorites && favorites.find(f => f.brewery_id === brewery.id)) 
+                ? <Star color='primary' /> 
+                : <StarOutline color='primary' />
+            }
+          </IconButton>
           {brewery.website_url && 
             <Button
               onClick={() => openInNew(brewery.website_url)}
@@ -101,3 +120,5 @@ export const BreweryCard = (props) => {
     </Paper>
   );
 };
+
+export default BreweryCard;

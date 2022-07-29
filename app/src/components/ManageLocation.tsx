@@ -1,6 +1,6 @@
 import { FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select } from "@mui/material";
 import React from "react";
-import { LocationOption } from "../models/constants";
+import { LocationOption, StaticLocations } from "../models/constants";
 
 const ManageLocation = (props) => {
 
@@ -16,14 +16,15 @@ const ManageLocation = (props) => {
 
   const handleLocationChange = (event) => {
     setLocationSelected(event.target.value);
-    if (event.target.value === 1) {
+    if (event.target.value === StaticLocations.myLocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         setQueryCoords({
           lat: pos.coords.latitude.toString(),
           long: pos.coords.longitude.toString(),
+          isCurrentLocation: true,
         });
       });
-    } else if (event.target.value === 0) {
+    } else if (event.target.value === StaticLocations.all) {
       setQueryCoords(undefined);
     } else {
       const selection = locationType === LocationOption.city
@@ -33,12 +34,14 @@ const ManageLocation = (props) => {
       setQueryCoords({
         lat: selection.lat,
         long: selection.long,
+        isCurrentLocation: false,
       });
     }
   };
 
   const handleLocationTypeChange = (event) => {
     setLocationType((event.target as HTMLInputElement).value);
+    setLocationSelected(StaticLocations.all);
   };
 
   return(
@@ -63,11 +66,11 @@ const ManageLocation = (props) => {
         <InputLabel>Select a location</InputLabel>
         <Select
           value={locationSelected}
-          defaultValue={0}
+          defaultValue={StaticLocations.all}
           onChange={handleLocationChange}
         >
-          <MenuItem key={0} value={0}>All cities &amp; locations</MenuItem>
-          <MenuItem key={1} value={1}>My current location</MenuItem>
+          <MenuItem key={0} value={StaticLocations.all}>All cities &amp; locations</MenuItem>
+          <MenuItem key={1} value={StaticLocations.myLocation}>My current location</MenuItem>
           <MenuItem disabled>---</MenuItem>
           {locationType === LocationOption.city && allCapitals && Object.keys(allCapitals).map((key) =>
             <MenuItem key={key} value={key}>

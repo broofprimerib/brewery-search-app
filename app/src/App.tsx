@@ -1,148 +1,257 @@
-import React, { useState } from 'react';
-import { Backdrop, Box, CircularProgress, Grid, Paper, Snackbar, Tab, Tabs } from '@mui/material';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Backdrop, Badge, Box, CircularProgress, IconButton, ListItem, ListItemText, Paper, Tab, Tabs } from '@mui/material';
+import { Search as SearchIcon, History, DataArray, Star, PlayCircle } from '@mui/icons-material';
+
+import { toggleFavorite, fetchFavorites, fetchHistories, fetchCapitals, fetchCountries } from './api';
 
 import { Brewery } from './models/Brewery';
 import { LatLong } from './models/LatLong';
-import { MainSearch } from './components/Search';
-import { Pagination } from './components/Pagination';
-import { BreweryCard } from './components/BreweryCard';
-import { ScrollToTop } from './components/ScrollToTop';
+import { DistanceUnit, TabValues } from './models/constants';
+
+import Search from './components/Search';
+import BreweryCard from './components/BreweryCard';
+import ScrollToTop from './components/ScrollToTop';
 import NoResults from './components/NoResults';
+import NoFavorites from './components/NoFavorites';
+import Pagination from './components/Pagination';
+import { Container } from '@mui/system';
+import HistoryItem from './components/HistoryItem';
+import NoHistory from './components/NoHistory';
+
 
 function App() {
-
+  const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState('');
+  const [breweries, setBreweries] = useState<Brewery[]>([]);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favoriteResults, setFavoriteResults] = useState(0);
+  const [history, setHistory] = useState([]);
+  const [tabSearch, setTabSearch] = useState('search');
+  const [tabResults, setTabResults] = useState('results');
+  const [queryCoords, setQueryCoords] = useState<LatLong>();
+  const [distanceFormat, setDistanceFormat] = useState(DistanceUnit.miles);
+  const [page, setPage] = useState<number>(1);
+  const [allCapitals, setAllCapitals] = useState<{}>({});
+  const [allCountries, setAllCountries] = useState<{}>({});
   const [loadingCapitals, setLoadingCapitals] = useState(true);
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [loadingBreweries, setLoadingBreweries] = useState(true);
-  const [loadingError, setLoadingError] = useState('');
-  const [tab, setTab] = useState('search');
 
-  const [locationSelected, setLocationSelected] = useState('0');
-  const [locationType, setLocationType] = useState('city');
-  const [allCapitals, setAllCapitals] = useState<{}>({});
-  const [allCountries, setAllCountries] = useState<{}>({});
-  const [queryKeyword, setQueryKeyword] = useState<string>('');
-  const [queryCoords, setQueryCoords] = useState<LatLong>();
-  const [queryType, setQueryType] = useState('All types');
-  const [distanceFormat, setDistanceFormat] = useState('mi');
-
-  const [breweries, setBreweries] = useState<Brewery[]>([]);
-
-  const [page, setPage] = useState<number>(1);
-  const [perPage, setPerPage] = useState<number>(10);
-
-  const handleTabChange = (event, value) => {
-    setTab(value);
+  const handleTabSearchChange = (event, value) => {
+    setTabSearch(value);
   };
+
+  const handleTabResultsChange = (event, value) => {
+    setTabResults(value);
+  };
+
+  const doFetchFavorites = useCallback(() => {
+    fetchFavorites()
+      .catch(e => {
+        setLoadingError(`There was an error loading the Favorites. ${e}`);
+      })
+      .then(f => {
+        setFavorites(f);
+      });
+  }, []);
+
+  const doToggleFavorite = useCallback((brewery) => {
+    toggleFavorite(brewery)
+      .catch(e => {
+        setLoadingError(`There was an error saving changes to the Favorites. ${e}`);
+      })
+      .then(f => {
+        setFavorites(f);
+      });
+  }, []);
+
+  const doFetchHistory = useCallback(() => {
+    fetchHistories()
+      .catch(e => {
+        setLoadingError(`There was an error loading the History. ${e}`);
+      })
+      .then(h => {
+        setHistory(h);
+      });
+  }, []);
+
+  const doFetchCapitals = useCallback(() => {
+    setLoadingCapitals(true);
+    fetchCapitals()
+      .catch(e => {
+        setLoadingError(`There was an error loading the Capitals. ${e}`);
+      })
+      .then(c => {
+        setAllCapitals(c);
+        setLoadingCapitals(false);
+      });
+  }, [setLoadingCapitals, setAllCapitals, setLoadingError]);
+
+  const doFetchCountries = useCallback(() => {
+    setLoadingCountries(true);
+    fetchCountries()
+      .catch(e => {
+        setLoadingError(`There was an error loading the Countries. ${e}`);
+      })
+      .then(c => {
+        setAllCountries(c);
+        setLoadingCountries(false);
+      });
+  }, [setLoadingCountries, setAllCountries, setLoadingError]);
+
+  useEffect(() => {
+    doFetchCapitals();
+    doFetchCountries();
+  }, [doFetchCapitals, doFetchCountries]);
+
+  useEffect(() => {
+    setLoading(loadingCapitals || loadingCountries || loadingBreweries);
+  }, [loadingCapitals, loadingCountries, loadingBreweries, setLoading]);
+
+  const prepStringForJson = (s: string) => {
+    return JSON.parse(s
+      .replace(/'/g, '"')
+      .replace(/: None/g, ': null')
+    );
+  };
+
+  useEffect(() => {
+    doFetchFavorites();
+    doFetchHistory();
+  }, [doFetchFavorites, doFetchHistory]);
+
+  useEffect(() => {
+    if (favorites?.length && breweries?.length) {
+      const favoriteIds = favorites.map(f => f.brewery_id);
+      const breweryIds = breweries.map(b => b.id);
+      setFavoriteResults(favoriteIds.reduce((a, c) => a + breweryIds.includes(c), 0));
+    }
+  }, [favorites, breweries]);
 
   return (
     <div>
-      <Backdrop
-        open={loadingBreweries || loadingCapitals || loadingCountries}
+      <Backdrop 
+        sx={{ bgcolor: '#ffffff44' }}
+        open={loading}
       >
         <CircularProgress />
       </Backdrop>
-      <Snackbar 
-        open={loadingError !== ''}
-        autoHideDuration={5000}
-        message={loadingError}
-        onClose={() => setLoadingError('')}
-      />
 
       <Pagination
         breweries={breweries} 
         page={page}
         setPage={setPage}
       />
+      <Container>
+        <Paper 
+          sx={{m: 4, p: 4, overflow: 'scroll'}} 
+          elevation={0}
+        >
+          <Tabs
+            value={tabSearch}
+            onChange={handleTabSearchChange}
+            sx={{ pb: 4 }}
+          >
+            <Tab icon={<SearchIcon />} label='Search' value={TabValues.search} />
+            <Tab icon={<History />} label='History' value={TabValues.history} />
+          </Tabs>
 
-      <Grid
-        container
-      >
-        <Grid item xs={6}>
-          <Paper sx={{m: 4, p: 4, overflow: 'scroll'}} elevation={0}>
-            <Tabs
-              value={tab}
-              onChange={handleTabChange}
-              sx={{ pb: 4 }}
-            >
-              <Tab label='Search' value='search' />
-              <Tab label='History' value='history' />
-            </Tabs>
+          <Box
+            role='tabpanel'  
+            hidden={tabSearch !== TabValues.search}
+          >
+            <Search 
+              breweries={breweries}
+              setBreweries={setBreweries}
+              loadingError={loadingError}
+              setLoadingError={setLoadingError}
+              setLoading={setLoading}
+              queryCoords={queryCoords}
+              setQueryCoords={setQueryCoords}
+              distanceFormat={distanceFormat}
+              setDistanceFormat={setDistanceFormat}
+              setHistory={setHistory}
+              page={page}
+              setPage={setPage}
+              setLoadingBreweries={setLoadingBreweries}
+              allCapitals={allCapitals}
+              allCountries={allCountries}
+            />
+          </Box>
 
-            <Box
-              role='tabpanel'  
-              hidden={tab !== 'search'}
-            >
-              <MainSearch 
-                tab={tab}
-                setLoadingBreweries={setLoadingBreweries}
-                setPage={setPage}
-                queryKeyword={queryKeyword}
-                queryCoords={queryCoords}
-                queryType={queryType}
-                perPage={perPage}
-                page={page}
-                setLoadingError={setLoadingError}
-                setBreweries={setBreweries}
-                distanceFormat={distanceFormat}
-                setQueryKeyword={setQueryKeyword}
-                setQueryCoords={setQueryCoords}
-                allCapitals={allCapitals}
-                setQueryType={setQueryType}
-                setPerPage={setPerPage}
-                setDistanceFormat={setDistanceFormat}
-                setLoadingCapitals={setLoadingCapitals}
-                setAllCapitals={setAllCapitals}
-                setAllCountries={setAllCountries}
+          <Box
+            role='tabpanel'
+            hidden={tabSearch !== TabValues.history}
+          >
+            <NoHistory history={history} />
+            {history && history.sort((a: any, b: any) => a.requested_at > b.requested_at ? 1 : -1).map((h: any) => 
+              <HistoryItem 
+                key={h.id} 
+                history={h} 
+                allCapitals={allCapitals} 
                 allCountries={allCountries}
-                setLoadingCountries={setLoadingCountries}
-                locationType={locationType}
-                setLocationType={setLocationType}
-                setLocationSelected={setLocationSelected}
-                locationSelected={locationSelected}
               />
-            </Box>
-
-            <Box
-              role='tabpanel'
-              hidden={tab !== 'history'}
-            >
-              HISTORY
-            </Box>
-            
-          </Paper>
-        </Grid>
-        <Grid item xs={6}>
-          <Paper sx={{m: 4, pt: 4, overflow: 'scroll'}} elevation={0}>
-            <Tabs
-              value={'results'}
-              sx={{ pb: 4 }}
-            >
-              <Tab label='Results' value='results' />
-            </Tabs>
-            <Box
-              role='tabpanel'
-              hidden={false}
-            >
-              {breweries && breweries.map((brewery) => 
-                <BreweryCard
-                  key={brewery.id} 
-                  queryCoords={queryCoords}
-                  distanceFormat={distanceFormat}
-                  brewery={brewery}
-                />
-              )}
-              <NoResults 
-                breweries={breweries}
-                loadingBreweries={loadingBreweries}
-                loadingCapitals={loadingCapitals}
-                loadingCountries={loadingCountries}
-                queryKeyword={queryKeyword}
+            )}
+          </Box>
+          
+        </Paper>
+        <Paper 
+          sx={{m: 4, p: 4, overflow: 'scroll'}} 
+          elevation={0}
+        >
+          <Tabs
+            value={tabResults}
+            onChange={handleTabResultsChange}
+            sx={{ pb: 4 }}
+          >
+            <Tab icon={
+              favoriteResults > 0
+                ? <Badge badgeContent={favoriteResults > 99 ? '99+' : favoriteResults} color='warning'><DataArray /></Badge>
+                : <DataArray />
+              } label='Results' value={TabValues.results} />
+            <Tab icon={
+              favorites && favorites.length > 0
+                ? <Badge badgeContent={favorites.length > 99 ? '99+' : favorites.length} color='warning'><Star /></Badge>
+                : <Star />
+            } label='Favorites' value={TabValues.favorites} />
+          </Tabs>
+          <Box
+            role='tabpanel'
+            hidden={tabResults !== TabValues.results}
+          >
+            {breweries && breweries.map((brewery) => 
+              <BreweryCard
+                key={brewery.id} 
+                queryCoords={queryCoords}
+                distanceFormat={distanceFormat}
+                brewery={brewery}
+                favorites={favorites}
+                toggleFavorite={doToggleFavorite}
               />
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+            )}
+            <NoResults 
+              loading={loading}
+              breweries={breweries}
+            />
+          </Box>
+          <Box
+            role='tabpanel'
+            hidden={tabResults !== TabValues.favorites}
+          >
+            {favorites && favorites.map((favorite: any) => 
+              <BreweryCard
+                key={favorite.id} 
+                queryCoords={queryCoords}
+                distanceFormat={distanceFormat}
+                brewery={prepStringForJson(favorite.data)}
+                favorites={favorites}
+                toggleFavorite={doToggleFavorite}
+              />
+            )}
+            <NoFavorites breweries={favorites} />
+          </Box>
+        </Paper>
+      </Container>
       <ScrollToTop />
     </div>
 
