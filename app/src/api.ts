@@ -10,8 +10,6 @@ interface IFetchBreweriesOptions {
 };
 
 export const fetchBreweries = async (options: IFetchBreweriesOptions) => {
-  console.log('fetch breweries')
-  //return;
   const byType = options.type
     ? `&by_type=${options.type}`
     : '';
