@@ -9,9 +9,7 @@ const HistoryItem = (props) => {
     allCapitals,
     allCountries,
   } = props;
-console.log(history)
-console.log(allCapitals)
-console.log(allCountries)
+
   const getText = () => {
     const searchParameters: string[] = [];
     if (history.query) {
